@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Bookings — TravelPulse</title>
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand">TravelPulse</div>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="destinations.html">Destinations</a>
+      <a href="bookings.html" class="active">My Bookings</a>
+      <a href="login.html">Login</a>
+    </div>
+  </nav>
+
+  <section class="page-section" style="padding-top: 2rem;">
+    <div class="section-heading">
+      <span class="eyebrow">Plan Your Journey</span>
+      <h2>Create a Booking</h2>
+    </div>
+
+    <div class="booking-steps" aria-label="Booking steps">
+      <div class="step active">
+        <span class="step-num">1</span>
+        <span class="step-label">Route</span>
+      </div>
+      <div class="step active">
+        <span class="step-num">2</span>
+        <span class="step-label">Date</span>
+      </div>
+      <div class="step active">
+        <span class="step-num">3</span>
+        <span class="step-label">Confirm</span>
+      </div>
+    </div>
+
+    <div class="form-container" id="booking-form-container">
+      <h2>Book a Route</h2>
+      <form id="booking-form">
+        <div class="form-group">
+          <label for="route-select">Select Route</label>
+          <select id="route-select" required>
+            <option value="">Choose a route\u2026</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="travel-date">Travel Date</label>
+          <input type="date" id="travel-date" required>
+        </div>
+        <button type="submit" class="btn">Confirm Booking</button>
+      </form>
+      <p id="booking-msg" class="msg"></p>
+    </div>
+  </section>
+
+  <div class="kolam-divider" aria-hidden="true">
+    <svg viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="20" x2="70" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
+      <path d="M80,20 L90,10 L100,20 L110,10 L120,20" stroke="#C9A24B" stroke-width="1" fill="none" opacity="0.5"/>
+      <line x1="130" y1="20" x2="200" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <section class="page-section">
+    <div class="section-heading">
+      <span class="eyebrow">Your Trips</span>
+      <h2>My Bookings</h2>
+    </div>
+    <div id="bookings-list"></div>
+  </section>
+
+  <footer class="footer">
+    <p><span class="footer-brand">TravelPulse</span> &copy; 2026 &middot; Built for global exploration.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/nav.js"></script>
+  <script>
+    (function () {
+      var token = localStorage.getItem("token");
+      var listEl = document.getElementById("bookings-list");
+      var msgEl = document.getElementById("booking-msg");
+      var selectEl = document.getElementById("route-select");
+      var formEl = document.getElementById("booking-form");
+
+      function showToast(msg) {
+        var toast = document.getElementById("toast");
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add("show");
+        setTimeout(function () { toast.classList.remove("show"); }, 4000);
+      }
+
+      function skeletonBookings() {
+        var html = "";
+        for (var i = 0; i < 3; i++) {
+          html +=
+            '<div class="booking-card skeleton-booking">' +
+            '<div class="skeleton-line skeleton-line-lg shimmer"></div>' +
+            '<div class="skeleton-line skeleton-line-md shimmer" style="margin-top:0.5rem"></div>' +
+            '<div class="skeleton-line skeleton-line-sm shimmer" style="margin-top:0.5rem"></div>' +
+            '</div>';
+        }
+        listEl.innerHTML = html;
+      }
+
+      if (!token) {
+        listEl.innerHTML = '<p class="empty-state">Please <a href="login.html" style="color:var(--gold);text-decoration:underline;">log in</a> to manage bookings.</p>';
+        formEl.closest(".form-container").style.display = "none";
+        document.querySelector(".booking-steps").style.display = "none";
+      }
+
+      function headers() {
+        return { "Content-Type": "application/json", "Authorization": "Bearer " + token };
+      }
+
+      function statusBadge(status) {
+        var cls = "status-" + status;
+        return '<span class="status-badge ' + cls + '">' + status + "</span>";
+      }
+
+      function loadRoutes() {
+        fetch(API_BASE + "/routes")
+          .then(function (res) {
+            if (!res.ok) throw new Error();
+            return res.json();
+          })
+          .then(function (routes) {
+            routes.forEach(function (r) {
+              var opt = document.createElement("option");
+              opt.value = r.id;
+              opt.textContent = r.origin + " \u2192 " + r.destination + " (" + r.mode + ", " + r.distance_km + " km)";
+              selectEl.appendChild(opt);
+            });
+          })
+          .catch(function () {
+            selectEl.innerHTML = '<option value="">Failed to load routes</option>';
+          });
+      }
+
+      function loadBookings() {
+        if (!token) return;
+        skeletonBookings();
+
+        fetch(API_BASE + "/bookings", { headers: { "Authorization": "Bearer " + token } })
+          .then(function (res) {
+            if (res.status === 401 || res.status === 403) {
+              localStorage.removeItem("token");
+              listEl.innerHTML = '<p class="msg msg-error">Session expired. Please <a href="login.html" style="color:var(--gold);">log in</a> again.</p>';
+              return null;
+            }
+            if (!res.ok) throw new Error();
+            return res.json();
+          })
+          .then(function (bookings) {
+            if (!bookings) return;
+            if (!bookings.length) {
+              listEl.innerHTML = '<p class="empty-state">No bookings yet. Create one above.</p>';
+              return;
+            }
+            listEl.innerHTML = bookings.map(function (b) {
+              var actions = "";
+              if (b.status === "pending") {
+                actions =
+                  '<button class="btn btn-sm" onclick="TP.confirmBooking(' + b.id + ')">Confirm</button>' +
+                  '<button class="btn btn-sm btn-cancel" onclick="TP.cancelBooking(' + b.id + ')">Cancel</button>';
+              }
+              actions += '<button class="btn btn-sm btn-delete" onclick="TP.deleteBooking(' + b.id + ')">Delete</button>';
+
+              return (
+                '<div class="booking-card">' +
+                "<h3>" + b.origin + " \u2192 " + b.destination + "</h3>" +
+                '<div class="booking-meta">' +
+                '<span class="booking-date">' + b.travel_date + "</span>" +
+                statusBadge(b.status) +
+                "</div>" +
+                '<div class="booking-actions">' + actions + "</div>" +
+                "</div>"
+              );
+            }).join("");
+          })
+          .catch(function () {
+            listEl.innerHTML = '<p class="msg msg-error">Failed to load bookings.</p>';
+          });
+      }
+
+      formEl.addEventListener("submit", function (e) {
+        e.preventDefault();
+        fetch(API_BASE + "/bookings", {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify({
+            route_id: parseInt(selectEl.value),
+            travel_date: document.getElementById("travel-date").value,
+          }),
+        })
+          .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+          .then(function (result) {
+            if (!result.ok) { msgEl.textContent = result.data.error; return; }
+            msgEl.textContent = "";
+            formEl.reset();
+            showToast("Booking confirmed! Your trip is booked.");
+            loadBookings();
+          })
+          .catch(function () {
+            msgEl.textContent = "Failed to create booking.";
+          });
+      });
+
+      window.TP = window.TP || {};
+      window.TP.confirmBooking = function (id) { updateStatus(id, "confirmed"); };
+      window.TP.cancelBooking = function (id) { updateStatus(id, "cancelled"); };
+
+      function updateStatus(id, status) {
+        fetch(API_BASE + "/bookings/" + id, {
+          method: "PATCH",
+          headers: headers(),
+          body: JSON.stringify({ status: status }),
+        })
+          .then(function (res) {
+            if (res.status === 401) {
+              localStorage.removeItem("token");
+              window.location.href = "login.html";
+              return;
+            }
+            showToast("Booking " + status + ".");
+            loadBookings();
+          })
+          .catch(function () {});
+      }
+
+      window.TP.deleteBooking = function (id) {
+        if (!confirm("Delete this booking?")) return;
+        fetch(API_BASE + "/bookings/" + id, {
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + token },
+        })
+          .then(function (res) {
+            if (res.status === 401) {
+              localStorage.removeItem("token");
+              window.location.href = "login.html";
+              return;
+            }
+            showToast("Booking deleted.");
+            loadBookings();
+          })
+          .catch(function () {});
+      };
+
+      loadRoutes();
+      loadBookings();
+    })();
+  </script>
+
+</body>
+</html>

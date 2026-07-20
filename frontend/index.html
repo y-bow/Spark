@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TravelPulse — Explore the World</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <nav class="navbar anim-nav">
+    <div class="nav-brand">TravelPulse</div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="pages/destinations.html">Destinations</a>
+      <a href="pages/bookings.html">My Bookings</a>
+      <a href="pages/login.html">Login</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div id="globeViz" class="hero-globe"></div>
+    <div class="hero-gradient" aria-hidden="true"></div>
+    <div class="hero-content">
+      <span class="hero-eyebrow anim-eyebrow">Discover Extraordinary Destinations</span>
+      <h1 class="anim-headline">Discover <span class="gold">the World</span></h1>
+      <p class="hero-sub anim-sub">A curated travel dashboard mapping the world's most breathtaking landscapes and cultural wonders.</p>
+
+      <div class="search-container anim-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <form id="search-form">
+          <input type="text" class="search-input" id="search-input" placeholder="Search a city or country..." autocomplete="off">
+        </form>
+        <div class="search-dropdown" id="search-dropdown"></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="destinations-section">
+    <div class="section-heading">
+      <span class="eyebrow reveal-eyebrow">Top Destinations</span>
+      <h2 class="reveal">Where the World Takes You</h2>
+    </div>
+    <div id="destination-cards" class="card-grid"></div>
+  </section>
+
+  <footer class="footer">
+    <p><span class="footer-brand">TravelPulse</span> &copy; 2026 &middot; Built for global exploration.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/globe.gl@2.34.4/dist/globe.gl.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script defer src="js/globe.js"></script>
+  <script defer src="js/main.js"></script>
+
+</body>
+</html>
