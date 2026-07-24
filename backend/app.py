@@ -5,7 +5,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
 from extensions import db
-from routes import auth_bp, destinations_bp, routes_api_bp, bookings_bp
+from routes import auth_bp, destinations_bp, routes_api_bp, bookings_bp, analytics_bp
 
 
 def create_app():
@@ -35,6 +35,7 @@ def create_app():
     app.register_blueprint(destinations_bp)
     app.register_blueprint(routes_api_bp)
     app.register_blueprint(bookings_bp)
+    app.register_blueprint(analytics_bp)
 
     with app.app_context():
         db.create_all()

@@ -59,15 +59,18 @@ var LOCATIONS = [
   { name: "Milford Sound",         country: "New Zealand", lat: -44.6414, lng: 167.8972, altitude: 1.4, aliases: ["fiordland", "piopiotahi"] },
   { name: "Bora Bora",             country: "French Polynesia", lat: -16.5004, lng: -151.7415, altitude: 1.3, aliases: ["bora", "tahiti", "lagoon"] },
 
-   // Featured destinations (seeds stay here, searchable by name)
-  { name: "Chennai",        country: "India",  lat: 13.08,  lng: 80.27,  altitude: 1.2, aliases: ["madras", "tamil nadu"] },
-  { name: "Madurai",        country: "India",  lat: 9.92,   lng: 78.12,  altitude: 1.2, aliases: ["temple city", "meenakshi", "tamil nadu"] },
-  { name: "Ooty",           country: "India",  lat: 11.41,  lng: 76.69,  altitude: 1.2, aliases: ["ootacamund", "nilgiris", "hill station"] },
+  // India (key tourist spots)
+  { name: "Mahabalipuram",  country: "India",  lat: 12.62,  lng: 80.19,  altitude: 1.2, aliases: ["mamallapuram", "shore temple"] },
+  { name: "Madurai",        country: "India",  lat: 9.92,   lng: 78.12,  altitude: 1.2, aliases: ["temple city", "meenakshi"] },
+  { name: "Ooty",           country: "India",  lat: 11.41,  lng: 76.69,  altitude: 1.2, aliases: ["ootacamund", "nilgiris"] },
   { name: "Kodaikanal",     country: "India",  lat: 10.24,  lng: 77.48,  altitude: 1.2, aliases: ["kodai", "palani hills"] },
   { name: "Rameswaram",     country: "India",  lat: 9.28,   lng: 79.31,  altitude: 1.2, aliases: ["rameshwaram", "island temple"] },
-  { name: "Kanyakumari",    country: "India",  lat: 8.08,   lng: 77.53,  altitude: 1.2, aliases: ["cape comorin", "southernmost tip"] },
-  { name: "Pondicherry",    country: "India",  lat: 11.94,  lng: 79.80,  altitude: 1.2, aliases: ["puducherry", "french riviera of the east"] },
-  { name: "Mahabalipuram",  country: "India",  lat: 12.62,  lng: 80.19,  altitude: 1.2, aliases: ["mamallapuram", "shore temple"] },
+  { name: "Kanyakumari",    country: "India",  lat: 8.08,   lng: 77.53,  altitude: 1.2, aliases: ["cape comorin"] },
+  { name: "Pondicherry",    country: "India",  lat: 11.94,  lng: 79.80,  altitude: 1.2, aliases: ["puducherry", "french riviera"] },
+  { name: "Jaipur",         country: "India",  lat: 26.91,  lng: 75.78,  altitude: 1.2, aliases: ["pink city", "rajasthan"] },
+  { name: "Goa",            country: "India",  lat: 15.29,  lng: 74.12,  altitude: 1.2, aliases: ["beaches", "portuguese"] },
+  { name: "Varanasi",       country: "India",  lat: 25.31,  lng: 82.97,  altitude: 1.2, aliases: ["benares", "kashi"] },
+  { name: "Kerala Backwaters", country: "India", lat: 9.49, lng: 76.33, altitude: 1.2, aliases: ["alleppey", "houseboat", "kerala"] },
 ];
 
 /* ──────────────────────────────────────────────────
@@ -121,6 +124,9 @@ if (typeof Fuse !== "undefined") {
     .arcDashGap(0.2)
     .arcDashAnimateTime(1800)
     .arcStroke(0.6);
+
+  // ── Match canvas clear color to page background — eliminates seam ──
+  globe.renderer().setClearColor(0x0B0E1A, 1);
 
   // ── Controls: drag, zoom, auto-rotate ──
   var controls = globe.controls();

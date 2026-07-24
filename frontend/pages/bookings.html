@@ -3,26 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Bookings — TravelPulse</title>
+  <title>My Bookings | TravelPulse</title>
+  <meta name="description" content="Manage your travel bookings, view upcoming trips, and explore your itinerary with TravelPulse.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="My Bookings | TravelPulse">
+  <meta property="og:description" content="Manage your travel bookings, view upcoming trips, and explore your itinerary with TravelPulse.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1589519160732-57fc498494f8?q=80&w=1200&auto=format&fit=crop">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://travelpulse-app.netlify.app/pages/bookings.html">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://travelpulse-app.netlify.app/pages/bookings.html">
+  
+  <!-- Favicon & Manifest -->
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+
   <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar anim-nav">
     <div class="nav-brand">TravelPulse</div>
     <div class="nav-links">
       <a href="../index.html">Home</a>
-      <a href="destinations.html">Destinations</a>
       <a href="bookings.html" class="active">My Bookings</a>
       <a href="login.html">Login</a>
     </div>
   </nav>
 
-  <section class="page-section" style="padding-top: 2rem;">
-    <div class="section-heading">
-      <span class="eyebrow">Plan Your Journey</span>
-      <h2>Create a Booking</h2>
-    </div>
+  <main>
+    <section class="page-section" style="padding-top: 2rem;">
+      <div class="section-heading">
+        <span class="eyebrow">Plan Your Journey</span>
+        <h1>Create a Booking</h1>
+      </div>
 
     <div class="booking-steps" aria-label="Booking steps">
       <div class="step active">
@@ -56,23 +75,24 @@
       </form>
       <p id="booking-msg" class="msg"></p>
     </div>
-  </section>
+    </section>
 
-  <div class="kolam-divider" aria-hidden="true">
-    <svg viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
-      <line x1="0" y1="20" x2="70" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
-      <path d="M80,20 L90,10 L100,20 L110,10 L120,20" stroke="#C9A24B" stroke-width="1" fill="none" opacity="0.5"/>
-      <line x1="130" y1="20" x2="200" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
-    </svg>
-  </div>
-
-  <section class="page-section">
-    <div class="section-heading">
-      <span class="eyebrow">Your Trips</span>
-      <h2>My Bookings</h2>
+    <div class="kolam-divider" aria-hidden="true">
+      <svg viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="20" x2="70" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
+        <path d="M80,20 L90,10 L100,20 L110,10 L120,20" stroke="#C9A24B" stroke-width="1" fill="none" opacity="0.5"/>
+        <line x1="130" y1="20" x2="200" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
+      </svg>
     </div>
-    <div id="bookings-list"></div>
-  </section>
+
+    <section class="page-section">
+      <div class="section-heading">
+        <span class="eyebrow">Your Trips</span>
+        <h2>My Bookings</h2>
+      </div>
+      <div id="bookings-list"></div>
+    </section>
+  </main>
 
   <footer class="footer">
     <p><span class="footer-brand">TravelPulse</span> &copy; 2026 &middot; Built for global exploration.</p>
@@ -80,8 +100,8 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/nav.js"></script>
+  <script defer src="../js/config.js"></script>
+  <script defer src="../js/nav.js"></script>
   <script>
     (function () {
       var token = localStorage.getItem("token");

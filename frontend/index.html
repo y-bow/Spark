@@ -3,8 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TravelPulse — Explore the World</title>
+  <title>TravelPulse | Discover & Book Travel Destinations Worldwide</title>
+  <meta name="description" content="Explore global tourist destinations on an interactive 3D globe and book travel routes across Tamil Nadu with TravelPulse.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="TravelPulse | Discover & Book Travel Destinations Worldwide">
+  <meta property="og:description" content="Explore global tourist destinations on an interactive 3D globe and book travel routes across Tamil Nadu with TravelPulse.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1589519160732-57fc498494f8?q=80&w=1200&auto=format&fit=crop">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://travelpulse-app.netlify.app/index.html">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://travelpulse-app.netlify.app/index.html">
+  
+  <!-- Favicon & Manifest -->
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+
   <link rel="stylesheet" href="css/main.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "TravelPulse",
+    "url": "https://travelpulse-app.netlify.app",
+    "description": "Explore global tourist destinations on an interactive 3D globe and book travel routes across Tamil Nadu with TravelPulse."
+  }
+  </script>
 </head>
 <body>
 
@@ -12,39 +42,60 @@
     <div class="nav-brand">TravelPulse</div>
     <div class="nav-links">
       <a href="index.html" class="active">Home</a>
-      <a href="pages/destinations.html">Destinations</a>
       <a href="pages/bookings.html">My Bookings</a>
       <a href="pages/login.html">Login</a>
     </div>
   </nav>
 
-  <header class="hero">
-    <div id="globeViz" class="hero-globe"></div>
-    <div class="hero-gradient" aria-hidden="true"></div>
-    <div class="hero-content">
-      <span class="hero-eyebrow anim-eyebrow">Discover Extraordinary Destinations</span>
-      <h1 class="anim-headline">Discover <span class="gold">the World</span></h1>
-      <p class="hero-sub anim-sub">A curated travel dashboard mapping the world's most breathtaking landscapes and cultural wonders.</p>
+  <main>
+    <header class="hero">
+      <div id="globeViz" class="hero-globe"></div>
+      <div class="hero-gradient" aria-hidden="true"></div>
+      <div class="hero-content">
+        <span class="hero-eyebrow anim-eyebrow">Discover Extraordinary Destinations</span>
+        <h1 class="anim-headline">Discover <span class="gold">the World</span></h1>
+        <p class="hero-sub anim-sub">A curated travel dashboard mapping the world's most breathtaking landscapes and cultural wonders.</p>
 
-      <div class="search-container anim-search">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <form id="search-form">
-          <input type="text" class="search-input" id="search-input" placeholder="Search a city or country..." autocomplete="off">
-        </form>
-        <div class="search-dropdown" id="search-dropdown"></div>
+        <div class="search-container anim-search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <form id="search-form">
+            <input type="text" class="search-input" id="search-input" placeholder="Search a city or country..." autocomplete="off">
+          </form>
+          <div class="search-dropdown" id="search-dropdown"></div>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <section class="destinations-section">
-    <div class="section-heading">
-      <span class="eyebrow reveal-eyebrow">Top Destinations</span>
-      <h2 class="reveal">Where the World Takes You</h2>
-    </div>
-    <div id="destination-cards" class="card-grid"></div>
-  </section>
+    <section class="destinations-section">
+      <div class="section-heading">
+        <span class="eyebrow reveal-eyebrow">Top Destinations</span>
+        <h2 class="reveal">Where the World Takes You</h2>
+      </div>
+
+      <div class="filter-bar reveal" id="filter-bar">
+        <div class="filter-group">
+          <label for="filter-category">Category</label>
+          <select id="filter-category">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-country">Country</label>
+          <select id="filter-country">
+            <option value="">All Countries</option>
+          </select>
+        </div>
+        <div class="filter-group filter-search-group">
+          <label for="filter-search">Search</label>
+          <input type="text" id="filter-search" placeholder="Search destinations..." autocomplete="off">
+        </div>
+      </div>
+
+      <div id="destination-cards" class="card-grid"></div>
+    </section>
+  </main>
 
   <footer class="footer">
     <p><span class="footer-brand">TravelPulse</span> &copy; 2026 &middot; Built for global exploration.</p>
@@ -54,8 +105,8 @@
 
   <script defer src="https://cdn.jsdelivr.net/npm/globe.gl@2.34.4/dist/globe.gl.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/nav.js"></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/nav.js"></script>
   <script defer src="js/globe.js"></script>
   <script defer src="js/main.js"></script>
 

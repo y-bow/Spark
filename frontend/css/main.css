@@ -260,6 +260,7 @@ select:focus-visible {
   bottom: -5vh;
   z-index: 0;
   touch-action: none;
+  background-color: var(--indigo);
 }
 
 .hero-globe canvas {
@@ -886,8 +887,8 @@ select:focus-visible {
 
 .reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+  transform: translateY(16px);
+  transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out);
 }
 
 .reveal.visible {
@@ -909,8 +910,8 @@ select:focus-visible {
 /* Staggered card reveals — set via JS with --stagger-delay */
 .reveal-card {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+  transform: translateY(16px);
+  transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
   transition-delay: var(--stagger-delay, 0ms);
 }
 

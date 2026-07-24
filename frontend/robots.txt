@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://travelpulse-app.netlify.app/sitemap.xml

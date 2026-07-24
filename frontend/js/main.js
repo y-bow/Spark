@@ -2,6 +2,11 @@
   var container = document.getElementById("destination-cards");
   if (!container) return;
 
+  var catSelect = document.getElementById("filter-category");
+  var countrySelect = document.getElementById("filter-country");
+  var searchInput = document.getElementById("filter-search");
+  var allData = [];
+
   function skeletonCards(count) {
     var html = "";
     for (var i = 0; i < count; i++) {
@@ -21,13 +26,29 @@
 
   function render(destinations) {
     if (!destinations || !destinations.length) {
-      container.innerHTML = '<p class="empty-state">No destinations available.</p>';
+      container.innerHTML =
+        '<div class="empty-state-container">' +
+        '<div class="empty-state-icon">&#128269;</div>' +
+        '<p class="empty-state">No destinations found.</p>' +
+        '<p class="empty-state-hint">Try removing some filters or broadening your search.</p>' +
+        '<button class="btn btn-outline" id="clear-filters-btn">Clear All Filters</button>' +
+        '</div>';
+      var clearBtn = document.getElementById("clear-filters-btn");
+      if (clearBtn) {
+        clearBtn.addEventListener("click", function () {
+          if (catSelect) catSelect.value = "";
+          if (countrySelect) countrySelect.value = "";
+          if (searchInput) searchInput.value = "";
+          renderCards(allData);
+        });
+      }
+      observeReveals();
       return;
     }
     container.innerHTML = destinations
       .map(function (d, i) {
         var imgHtml = d.image_url
-          ? '<img class="dest-card-img" src="' + d.image_url + '" alt="' + d.name + '" loading="lazy" width="400" height="225">'
+          ? '<img class="dest-card-img" src="' + d.image_url + '" alt="' + d.name + (d.region ? ' - ' + d.region : '') + ' destination overview" loading="lazy" width="400" height="225" onerror="this.style.display=\'none\'">'
           : "";
         var ratingHtml = d.rating
           ? '<span class="dest-card-rating">&#9733; ' + d.rating + "</span>"
@@ -47,7 +68,7 @@
           : "";
 
         return (
-          '<article class="dest-card reveal-card" style="--stagger-delay:' + (i * 60) + 'ms">' +
+          '<article class="dest-card reveal-card" style="--stagger-delay:' + (Math.min(i, 12) * 30) + 'ms">' +
           imgHtml +
           '<div class="dest-card-body">' +
           '<span class="eyebrow-label">' + (d.category || "Destination") + "</span>" +
@@ -69,33 +90,90 @@
     observeReveals();
   }
 
+  function renderCards(list) {
+    render(list);
+  }
+
+  function populateFilters() {
+    if (!catSelect || !countrySelect) return;
+    var cats = {};
+    var countries = {};
+    allData.forEach(function (d) {
+      if (d.category) cats[d.category] = true;
+      if (d.country) countries[d.country] = true;
+    });
+    Object.keys(cats).sort().forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c.charAt(0).toUpperCase() + c.slice(1);
+      catSelect.appendChild(opt);
+    });
+    Object.keys(countries).sort().forEach(function (c) {
+      var opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      countrySelect.appendChild(opt);
+    });
+  }
+
+  function applyFilters() {
+    var cat = (catSelect && catSelect.value || "").toLowerCase();
+    var country = (countrySelect && countrySelect.value || "").toLowerCase();
+    var q = (searchInput && searchInput.value || "").toLowerCase().trim();
+
+    var filtered = allData.filter(function (d) {
+      if (cat && (d.category || "").toLowerCase() !== cat) return false;
+      if (country && (d.country || "").toLowerCase() !== country) return false;
+      if (q) {
+        var haystack = (
+          (d.name || "") + " " +
+          (d.region || "") + " " +
+          (d.country || "") + " " +
+          (d.description || "") + " " +
+          (d.category || "") + " " +
+          (d.highlights || "")
+        ).toLowerCase();
+        return haystack.indexOf(q) !== -1;
+      }
+      return true;
+    });
+    renderCards(filtered);
+  }
+
+  if (catSelect) catSelect.addEventListener("change", applyFilters);
+  if (countrySelect) countrySelect.addEventListener("change", applyFilters);
+  if (searchInput) {
+    var searchTimer = null;
+    searchInput.addEventListener("input", function () {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(applyFilters, 150);
+    });
+  }
+
   function observeReveals() {
+    var targets = document.querySelectorAll(".reveal-card:not(.visible), .reveal:not(.visible), .reveal-eyebrow:not(.visible)");
+    if (!targets.length) return;
     if (typeof IntersectionObserver === "undefined") {
-      var els = document.querySelectorAll(".reveal, .reveal-eyebrow, .reveal-card");
-      for (var i = 0; i < els.length; i++) els[i].classList.add("visible");
+      targets.forEach(function (el) { el.classList.add("visible"); });
       return;
     }
-
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
-    );
-
-    var targets = document.querySelectorAll(".reveal, .reveal-eyebrow, .reveal-card");
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: "0px 0px 30px 0px" });
     targets.forEach(function (el) { observer.observe(el); });
   }
 
   skeletonCards(6);
 
   if (window.TP && TP.destinations) {
-    render(TP.destinations);
+    allData = TP.destinations;
+    populateFilters();
+    renderCards(allData);
     observeReveals();
     return;
   }
@@ -103,7 +181,9 @@
   if (window.TP && TP.destinationsReady) {
     TP.destinationsReady
       .then(function () {
-        render(TP.destinations || []);
+        allData = TP.destinations || [];
+        populateFilters();
+        renderCards(allData);
       })
       .catch(function (err) {
         container.innerHTML =
@@ -120,8 +200,10 @@
       return res.json();
     })
     .then(function (data) {
+      allData = data;
       if (window.TP) TP.destinations = data;
-      render(data);
+      populateFilters();
+      renderCards(allData);
     })
     .catch(function (err) {
       container.innerHTML =

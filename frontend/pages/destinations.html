@@ -3,207 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Destinations — TravelPulse</title>
-  <link rel="stylesheet" href="../css/main.css">
+  <meta http-equiv="refresh" content="0; url=../index.html">
+  <title>Browse Destinations | TravelPulse</title>
+  <meta name="description" content="Browse and explore a curated collection of global tourist destinations on TravelPulse.">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Browse Destinations | TravelPulse">
+  <meta property="og:description" content="Browse and explore a curated collection of global tourist destinations on TravelPulse.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1589519160732-57fc498494f8?q=80&w=1200&auto=format&fit=crop">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://travelpulse-app.netlify.app/pages/destinations.html">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://travelpulse-app.netlify.app/pages/destinations.html">
+  
+  <!-- Favicon & Manifest -->
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
 </head>
 <body>
-
-  <nav class="navbar">
-    <div class="nav-brand">TravelPulse</div>
-    <div class="nav-links">
-      <a href="../index.html">Home</a>
-      <a href="destinations.html" class="active">Destinations</a>
-      <a href="bookings.html">My Bookings</a>
-      <a href="login.html">Login</a>
-    </div>
-  </nav>
-
-  <section class="page-section" style="padding-top: 2rem;">
-    <div class="section-heading">
-      <span class="eyebrow">All Destinations</span>
-      <h2>Explore Every Corner of the World</h2>
-    </div>
-
-    <div class="filter-bar" id="filter-bar">
-      <div class="filter-group">
-        <label for="filter-category">Category</label>
-        <select id="filter-category">
-          <option value="">All Categories</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="filter-country">Country</label>
-        <select id="filter-country">
-          <option value="">All Countries</option>
-        </select>
-      </div>
-      <div class="filter-group filter-search-group">
-        <label for="filter-search">Search</label>
-        <input type="text" id="filter-search" placeholder="Search destinations..." autocomplete="off">
-      </div>
-    </div>
-
-    <div id="all-destinations" class="card-grid"></div>
-  </section>
-
-  <div class="kolam-divider" aria-hidden="true">
-    <svg viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
-      <line x1="0" y1="20" x2="70" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
-      <path d="M80,20 L90,10 L100,20 L110,10 L120,20" stroke="#C9A24B" stroke-width="1" fill="none" opacity="0.5"/>
-      <line x1="130" y1="20" x2="200" y2="20" stroke="#C9A24B" stroke-width="0.5" opacity="0.4"/>
-    </svg>
-  </div>
-
-  <footer class="footer">
-    <p><span class="footer-brand">TravelPulse</span> &copy; 2026 &middot; Built for global exploration.</p>
-  </footer>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="../js/config.js"></script>
-  <script src="../js/nav.js"></script>
-  <script>
-    (function () {
-      var container = document.getElementById("all-destinations");
-      var catSelect = document.getElementById("filter-category");
-      var countrySelect = document.getElementById("filter-country");
-      var searchInput = document.getElementById("filter-search");
-      var allData = [];
-
-      function skeletonCards(count) {
-        var html = "";
-        for (var i = 0; i < count; i++) {
-          html +=
-            '<article class="dest-card skeleton-card" aria-hidden="true">' +
-            '<div class="skeleton-img shimmer"></div>' +
-            '<div class="dest-card-body">' +
-            '<div class="skeleton-line skeleton-line-sm shimmer"></div>' +
-            '<div class="skeleton-line skeleton-line-lg shimmer"></div>' +
-            '<div class="skeleton-line skeleton-line-md shimmer"></div>' +
-            '<div class="skeleton-line skeleton-line-full shimmer"></div>' +
-            '<div class="skeleton-line skeleton-line-full shimmer"></div>' +
-            '</div></article>';
-        }
-        container.innerHTML = html;
-      }
-
-      function renderCards(list) {
-        if (!list.length) {
-          container.innerHTML = '<p class="empty-state">No destinations match your filters.</p>';
-          return;
-        }
-        container.innerHTML = list.map(function (d) {
-          var imgHtml = d.image_url
-            ? '<img class="dest-card-img" src="' + d.image_url + '" alt="' + d.name + '" loading="lazy" width="400" height="225">'
-            : "";
-          var ratingHtml = d.rating
-            ? '<span class="dest-card-rating">&#9733; ' + d.rating + "</span>"
-            : "";
-          var feeHtml = d.entry_fee_display
-            ? '<span class="dest-card-fee">' + d.entry_fee_display + "</span>"
-            : "";
-          var timeHtml = d.best_time_to_visit
-            ? '<span class="dest-card-time">' + d.best_time_to_visit + "</span>"
-            : "";
-          var highlightsHtml = d.highlights
-            ? '<div class="dest-card-highlights">' +
-              d.highlights.split(",").map(function (h) {
-                return '<span class="highlight-tag">' + h.trim() + "</span>";
-              }).join("") +
-              "</div>"
-            : "";
-
-          return (
-            '<article class="dest-card reveal-card">' +
-            imgHtml +
-            '<div class="dest-card-body">' +
-            '<span class="eyebrow-label">' + (d.category || "Destination") + "</span>" +
-            '<div class="dest-card-title-row">' +
-            "<h3>" + d.name + "</h3>" +
-            ratingHtml +
-            "</div>" +
-            '<span class="region">' + (d.country ? d.country + " \u00b7 " + d.region : d.region) + "</span>" +
-            "<p>" + (d.description || "") + "</p>" +
-            (feeHtml || timeHtml
-              ? '<div class="dest-card-meta">' + feeHtml + timeHtml + "</div>"
-              : "") +
-            highlightsHtml +
-            "</div>" +
-            "</article>"
-          );
-        }).join("");
-      }
-
-      function populateFilters() {
-        var cats = {};
-        var countries = {};
-        allData.forEach(function (d) {
-          if (d.category) cats[d.category] = true;
-          if (d.country) countries[d.country] = true;
-        });
-        Object.keys(cats).sort().forEach(function (c) {
-          var opt = document.createElement("option");
-          opt.value = c;
-          opt.textContent = c.charAt(0).toUpperCase() + c.slice(1);
-          catSelect.appendChild(opt);
-        });
-        Object.keys(countries).sort().forEach(function (c) {
-          var opt = document.createElement("option");
-          opt.value = c;
-          opt.textContent = c;
-          countrySelect.appendChild(opt);
-        });
-      }
-
-      function applyFilters() {
-        var cat = catSelect.value.toLowerCase();
-        var country = countrySelect.value.toLowerCase();
-        var q = searchInput.value.toLowerCase().trim();
-
-        var filtered = allData.filter(function (d) {
-          if (cat && (d.category || "").toLowerCase() !== cat) return false;
-          if (country && (d.country || "").toLowerCase() !== country) return false;
-          if (q) {
-            var haystack = ((d.name || "") + " " + (d.region || "") + " " + (d.country || "") + " " + (d.description || "")).toLowerCase();
-            return haystack.indexOf(q) !== -1;
-          }
-          return true;
-        });
-        renderCards(filtered);
-      }
-
-      catSelect.addEventListener("change", applyFilters);
-      countrySelect.addEventListener("change", applyFilters);
-
-      var searchTimer = null;
-      searchInput.addEventListener("input", function () {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(applyFilters, 200);
-      });
-
-      skeletonCards(9);
-
-      fetch(API_BASE + "/destinations")
-        .then(function (res) {
-          if (!res.ok) throw new Error("HTTP " + res.status);
-          return res.json();
-        })
-        .then(function (list) {
-          allData = list;
-          populateFilters();
-          renderCards(list);
-        })
-        .catch(function () {
-          container.innerHTML =
-            '<div class="empty-state-container">' +
-            '<div class="empty-state-icon">&#9888;</div>' +
-            '<p class="empty-state">Couldn\'t load destinations.</p>' +
-            '<p class="empty-state-hint">The server may be starting up. Try again in a moment.</p>' +
-            '<button class="btn" onclick="window.location.reload()">Retry</button>' +
-            "</div>";
-        });
-    })();
-  </script>
-
+  <p>Redirecting to <a href="../index.html">Home</a>...</p>
 </body>
 </html>
