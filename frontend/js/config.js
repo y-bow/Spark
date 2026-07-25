@@ -1,1 +1,1 @@
-const API_BASE = "https://ybow.pythonanywhere.com/api"
+const API_BASE = "https://ybow.pythonanywhere.com/api/destinations"
