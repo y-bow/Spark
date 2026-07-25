@@ -29,7 +29,7 @@ def create_app():
         "https://travelpulse-app.netlify.app",
         "null",
     ]
-    CORS(app, origins=allowed)
+    CORS(app, origins=["https://luminous-swan-08e721.netlify.app/"])
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(destinations_bp)
