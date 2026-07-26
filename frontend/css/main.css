@@ -1268,6 +1268,136 @@ select:focus-visible {
 }
 
 /* ═══════════════════════════════════════════════════
+   Password Toggle
+   ═══════════════════════════════════════════════════ */
+
+.pw-group {
+  position: relative;
+}
+
+.pw-group input {
+  padding-right: 2.8rem;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(25%);
+  background: none;
+  border: none;
+  color: var(--ivory-muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  font-size: 1rem;
+  line-height: 1;
+  transition: color 0.2s var(--ease);
+  z-index: 2;
+}
+
+.pw-toggle:hover {
+  color: var(--gold);
+}
+
+/* ═══════════════════════════════════════════════════
+   Inline Validation
+   ═══════════════════════════════════════════════════ */
+
+.form-group input.valid {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--teal-dim);
+}
+
+.form-group input.invalid {
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px var(--terracotta-dim);
+}
+
+.form-hint {
+  font-size: 0.72rem;
+  margin-top: 0.25rem;
+  min-height: 1em;
+  transition: color 0.2s var(--ease);
+}
+
+.form-hint.error {
+  color: var(--terracotta);
+}
+
+.form-hint.ok {
+  color: var(--teal);
+}
+
+/* ═══════════════════════════════════════════════════
+   Button Loading Spinner
+   ═══════════════════════════════════════════════════ */
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn .spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--indigo);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 0.4rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════
+   Confirmation Card
+   ═══════════════════════════════════════════════════ */
+
+.confirm-card {
+  background: var(--teal-dim);
+  border: 1px solid rgba(27, 122, 110, 0.3);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-md);
+  text-align: center;
+  animation: scaleIn 0.3s var(--ease-out);
+}
+
+.confirm-card .confirm-icon {
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
+}
+
+.confirm-card h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin-bottom: var(--space-xs);
+}
+
+.confirm-card p {
+  font-size: 0.82rem;
+  color: var(--ivory-muted);
+}
+
+/* ═══════════════════════════════════════════════════
+   Dark-themed Select Options (best-effort)
+   ═══════════════════════════════════════════════════ */
+
+.form-group select option,
+.filter-group select option {
+  background: var(--indigo-card);
+  color: var(--ivory);
+}
+
+/* ═══════════════════════════════════════════════════
    Responsive
    ═══════════════════════════════════════════════════ */
 

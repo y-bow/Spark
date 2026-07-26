@@ -64,7 +64,7 @@
         <div class="form-group">
           <label for="route-select">Select Route</label>
           <select id="route-select" required>
-            <option value="">Choose a route\u2026</option>
+            <option value="">Choose a route…</option>
           </select>
         </div>
         <div class="form-group">
@@ -109,6 +109,7 @@
       var msgEl = document.getElementById("booking-msg");
       var selectEl = document.getElementById("route-select");
       var formEl = document.getElementById("booking-form");
+      var submitBtn = formEl ? formEl.querySelector('button[type="submit"]') : null;
 
       function showToast(msg) {
         var toast = document.getElementById("toast");
@@ -116,6 +117,20 @@
         toast.textContent = msg;
         toast.classList.add("show");
         setTimeout(function () { toast.classList.remove("show"); }, 4000);
+      }
+
+      function sessionExpired() {
+        localStorage.removeItem("token");
+        token = null;
+        window.location.href = "login.html?expired=1";
+      }
+
+      function checkAuth(res) {
+        if (res.status === 401 || res.status === 403) {
+          sessionExpired();
+          return true;
+        }
+        return false;
       }
 
       function skeletonBookings() {
@@ -146,13 +161,28 @@
         return '<span class="status-badge ' + cls + '">' + status + "</span>";
       }
 
+      function setBtnLoading(btn, loading, originalText) {
+        if (!btn) return;
+        if (loading) {
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner"></span>' + originalText + "\u2026";
+        } else {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
+      }
+
       function loadRoutes() {
         fetch(API_BASE + "/routes")
           .then(function (res) {
-            if (!res.ok) throw new Error();
+            if (!res.ok) throw new Error("HTTP " + res.status);
             return res.json();
           })
           .then(function (routes) {
+            if (!routes || !routes.length) {
+              selectEl.innerHTML = '<option value="">No routes available</option>';
+              return;
+            }
             routes.forEach(function (r) {
               var opt = document.createElement("option");
               opt.value = r.id;
@@ -161,7 +191,7 @@
             });
           })
           .catch(function () {
-            selectEl.innerHTML = '<option value="">Failed to load routes</option>';
+            selectEl.innerHTML = '<option value="">Failed to load routes \u2014 please try again</option>';
           });
       }
 
@@ -171,11 +201,7 @@
 
         fetch(API_BASE + "/bookings", { headers: { "Authorization": "Bearer " + token } })
           .then(function (res) {
-            if (res.status === 401 || res.status === 403) {
-              localStorage.removeItem("token");
-              listEl.innerHTML = '<p class="msg msg-error">Session expired. Please <a href="login.html" style="color:var(--gold);">log in</a> again.</p>';
-              return null;
-            }
+            if (checkAuth(res)) return null;
             if (!res.ok) throw new Error();
             return res.json();
           })
@@ -213,6 +239,18 @@
 
       formEl.addEventListener("submit", function (e) {
         e.preventDefault();
+
+        if (!selectEl.value) {
+          msgEl.textContent = "Please choose a route before confirming.";
+          msgEl.className = "msg msg-error";
+          selectEl.focus();
+          return;
+        }
+
+        setBtnLoading(submitBtn, true, "Confirm Booking");
+        msgEl.textContent = "";
+        msgEl.className = "msg";
+
         fetch(API_BASE + "/bookings", {
           method: "POST",
           headers: headers(),
@@ -221,16 +259,52 @@
             travel_date: document.getElementById("travel-date").value,
           }),
         })
-          .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+          .then(function (res) {
+            if (checkAuth(res)) return null;
+            return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+          })
           .then(function (result) {
-            if (!result.ok) { msgEl.textContent = result.data.error; return; }
-            msgEl.textContent = "";
+            if (!result) return;
+            if (!result.ok) {
+              var errText = "Booking failed";
+              if (result.data && result.data.error) {
+                var raw = result.data.error.toLowerCase();
+                if (raw.indexOf("route") !== -1) errText = "Please select a valid route";
+                else if (raw.indexOf("date") !== -1) errText = "Please choose a valid travel date";
+                else errText = result.data.error;
+              }
+              msgEl.textContent = errText;
+              msgEl.className = "msg msg-error";
+              setBtnLoading(submitBtn, false, "Confirm Booking");
+              return;
+            }
+
+            var routeText = selectEl.options[selectEl.selectedIndex]
+              ? selectEl.options[selectEl.selectedIndex].text
+              : "";
+            var dateVal = document.getElementById("travel-date").value;
+
             formEl.reset();
-            showToast("Booking confirmed! Your trip is booked.");
+            selectEl.selectedIndex = 0;
+            setBtnLoading(submitBtn, false, "Confirm Booking");
+
+            var confirmDiv = document.createElement("div");
+            confirmDiv.className = "confirm-card";
+            confirmDiv.innerHTML =
+              '<div class="confirm-icon">\u2714\uFE0F</div>' +
+              "<h3>Booking Confirmed!</h3>" +
+              "<p>" + routeText + "</p>" +
+              "<p>Travel date: " + dateVal + "</p>";
+            formEl.closest(".form-container").appendChild(confirmDiv);
+            setTimeout(function () { confirmDiv.remove(); }, 5000);
+
+            showToast("Your trip is booked!");
             loadBookings();
           })
           .catch(function () {
-            msgEl.textContent = "Failed to create booking.";
+            msgEl.textContent = "Unable to connect. Please try again.";
+            msgEl.className = "msg msg-error";
+            setBtnLoading(submitBtn, false, "Confirm Booking");
           });
       });
 
@@ -245,11 +319,7 @@
           body: JSON.stringify({ status: status }),
         })
           .then(function (res) {
-            if (res.status === 401) {
-              localStorage.removeItem("token");
-              window.location.href = "login.html";
-              return;
-            }
+            if (checkAuth(res)) return;
             showToast("Booking " + status + ".");
             loadBookings();
           })
@@ -257,21 +327,34 @@
       }
 
       window.TP.deleteBooking = function (id) {
-        if (!confirm("Delete this booking?")) return;
-        fetch(API_BASE + "/bookings/" + id, {
-          method: "DELETE",
-          headers: { "Authorization": "Bearer " + token },
-        })
-          .then(function (res) {
-            if (res.status === 401) {
-              localStorage.removeItem("token");
-              window.location.href = "login.html";
-              return;
-            }
-            showToast("Booking deleted.");
-            loadBookings();
+        var confirmDiv = document.createElement("div");
+        confirmDiv.className = "confirm-card";
+        confirmDiv.style.cssText = "background:var(--terracotta-dim);border-color:rgba(193,68,14,0.3);";
+        confirmDiv.innerHTML =
+          '<p style="color:var(--ivory);margin-bottom:0.8rem;">Delete this booking?</p>' +
+          '<button class="btn btn-sm btn-delete" id="confirm-delete-yes" style="margin-right:0.5rem;">Yes, delete</button>' +
+          '<button class="btn btn-sm btn-outline" id="confirm-delete-no">Cancel</button>';
+
+        var existing = listEl.querySelector(".confirm-card");
+        if (existing) existing.remove();
+        listEl.insertBefore(confirmDiv, listEl.firstChild);
+
+        document.getElementById("confirm-delete-no").addEventListener("click", function () {
+          confirmDiv.remove();
+        });
+        document.getElementById("confirm-delete-yes").addEventListener("click", function () {
+          confirmDiv.remove();
+          fetch(API_BASE + "/bookings/" + id, {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + token },
           })
-          .catch(function () {});
+            .then(function (res) {
+              if (checkAuth(res)) return;
+              showToast("Booking deleted.");
+              loadBookings();
+            })
+            .catch(function () {});
+        });
       };
 
       loadRoutes();

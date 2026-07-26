@@ -73,13 +73,15 @@
       <form id="login-form">
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" placeholder="you@example.com" required>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email" required>
+          <div id="login-email-hint" class="form-hint"></div>
         </div>
-        <div class="form-group">
+        <div class="form-group pw-group">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required>
+          <input type="password" id="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" aria-label="Show password">\u25CF</button>
         </div>
-        <button type="submit" class="btn" style="width:100%;">Login</button>
+        <button type="submit" class="btn" id="login-btn" style="width:100%;">Login</button>
       </form>
       <p id="login-msg" class="msg"></p>
       <p style="margin-top:1.2rem;font-size:0.85rem;color:var(--ivory-muted);text-align:center;position:relative;z-index:1;">
@@ -101,17 +103,19 @@
       <form id="register-form">
         <div class="form-group">
           <label for="reg-name">Name</label>
-          <input type="text" id="reg-name" placeholder="Your name" required>
+          <input type="text" id="reg-name" placeholder="Your name" autocomplete="name" required>
         </div>
         <div class="form-group">
           <label for="reg-email">Email</label>
-          <input type="email" id="reg-email" placeholder="you@example.com" required>
+          <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email" required>
+          <div id="reg-email-hint" class="form-hint"></div>
         </div>
-        <div class="form-group">
+        <div class="form-group pw-group">
           <label for="reg-password">Password</label>
-          <input type="password" id="reg-password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required>
+          <input type="password" id="reg-password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" autocomplete="new-password" required>
+          <button type="button" class="pw-toggle" aria-label="Show password">\u25CF</button>
         </div>
-        <button type="submit" class="btn" style="width:100%;">Register</button>
+        <button type="submit" class="btn" id="reg-btn" style="width:100%;">Register</button>
       </form>
       <p id="register-msg" class="msg"></p>
     </div>
@@ -123,57 +127,180 @@
     <p><span class="footer-brand">TravelPulse</span> &copy; 2026 &middot; Built for global exploration.</p>
   </footer>
 
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
   <script defer src="../js/config.js"></script>
   <script defer src="../js/nav.js"></script>
   <script>
-    document.getElementById("show-register").addEventListener("click", function (e) {
-      e.preventDefault();
-      document.getElementById("login-container").style.display = "none";
-      document.getElementById("register-container").style.display = "block";
-    });
+    (function () {
+      var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    document.getElementById("login-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var msg = document.getElementById("login-msg");
-      msg.textContent = "";
-      fetch(API_BASE + "/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: document.getElementById("email").value,
-          password: document.getElementById("password").value,
-        }),
-      })
-        .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
-        .then(function (r) {
-          if (!r.ok) { msg.textContent = r.data.error; return; }
-          localStorage.setItem("token", r.data.access_token);
-          msg.textContent = "Logged in! Redirecting\u2026";
-          setTimeout(function () { window.location.href = "bookings.html"; }, 800);
-        })
-        .catch(function () { msg.textContent = "Login failed."; });
-    });
+      if (window.location.search.indexOf("expired=1") !== -1) {
+        var loginMsg = document.getElementById("login-msg");
+        if (loginMsg) {
+          loginMsg.textContent = "Session expired, please log in again.";
+          loginMsg.className = "msg msg-error";
+        }
+      }
 
-    document.getElementById("register-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var msg = document.getElementById("register-msg");
-      msg.textContent = "";
-      fetch(API_BASE + "/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: document.getElementById("reg-name").value,
-          email: document.getElementById("reg-email").value,
-          password: document.getElementById("reg-password").value,
-        }),
-      })
-        .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
-        .then(function (r) {
-          if (!r.ok) { msg.textContent = r.data.error; return; }
-          msg.textContent = "Registered! You can now login.";
+      function showToast(msg) {
+        var t = document.getElementById("toast");
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(function () { t.classList.remove("show"); }, 3000);
+      }
+
+      /* ── Toggle password visibility ── */
+      document.querySelectorAll(".pw-toggle").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var inp = btn.parentElement.querySelector("input");
+          var show = inp.type === "password";
+          inp.type = show ? "text" : "password";
+          btn.textContent = show ? "\u25CB" : "\u25CF";
+          btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        });
+      });
+
+      /* ── Real-time email validation + toggle enable ── */
+      function wireValidation(emailId, pwId, hintId, btnId) {
+        var emailEl = document.getElementById(emailId);
+        var pwEl = document.getElementById(pwId);
+        var hint = document.getElementById(hintId);
+        var btn = document.getElementById(btnId);
+        if (!emailEl || !pwEl || !btn) return;
+
+        function check() {
+          var em = emailEl.value.trim();
+          var pw = pwEl.value;
+          if (em.length === 0) {
+            emailEl.classList.remove("valid", "invalid");
+            hint.textContent = "";
+            hint.className = "form-hint";
+          } else if (emailRe.test(em)) {
+            emailEl.classList.remove("invalid");
+            emailEl.classList.add("valid");
+            hint.textContent = "\u2713 Looks good";
+            hint.className = "form-hint ok";
+          } else {
+            emailEl.classList.remove("valid");
+            emailEl.classList.add("invalid");
+            hint.textContent = "Please enter a valid email";
+            hint.className = "form-hint error";
+          }
+          btn.disabled = !(emailRe.test(em) && pw.length >= 1);
+        }
+        emailEl.addEventListener("input", check);
+        pwEl.addEventListener("input", check);
+        btn.disabled = true;
+      }
+      wireValidation("email", "password", "login-email-hint", "login-btn");
+      wireValidation("reg-email", "reg-password", "reg-email-hint", "reg-btn");
+
+      /* ── Show/hide register ── */
+      document.getElementById("show-register").addEventListener("click", function (e) {
+        e.preventDefault();
+        document.getElementById("login-container").style.display = "none";
+        document.getElementById("register-container").style.display = "block";
+      });
+
+      /* ── Login submit ── */
+      document.getElementById("login-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var msg = document.getElementById("login-msg");
+        var btn = document.getElementById("login-btn");
+        msg.textContent = "";
+        msg.className = "msg";
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Signing in\u2026';
+
+        fetch(API_BASE + "/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+          }),
         })
-        .catch(function () { msg.textContent = "Registration failed."; });
-    });
+          .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+          .then(function (r) {
+            if (!r.ok) {
+              var errText = "Incorrect email or password";
+              if (r.data && r.data.error) {
+                var raw = r.data.error.toLowerCase();
+                if (raw.indexOf("not found") !== -1 || raw.indexOf("no user") !== -1) errText = "No account found with that email";
+                else if (raw.indexOf("password") !== -1) errText = "Incorrect password";
+                else if (raw.indexOf("invalid") !== -1) errText = "Invalid email or password";
+                else errText = r.data.error;
+              }
+              msg.textContent = errText;
+              msg.className = "msg msg-error";
+              btn.disabled = false;
+              btn.textContent = "Login";
+              return;
+            }
+            localStorage.setItem("token", r.data.access_token);
+            showToast("Welcome back! Redirecting\u2026");
+            setTimeout(function () { window.location.href = "bookings.html"; }, 1000);
+          })
+          .catch(function () {
+            msg.textContent = "Unable to connect. Please try again.";
+            msg.className = "msg msg-error";
+            btn.disabled = false;
+            btn.textContent = "Login";
+          });
+      });
+
+      /* ── Register submit ── */
+      document.getElementById("register-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var msg = document.getElementById("register-msg");
+        var btn = document.getElementById("reg-btn");
+        msg.textContent = "";
+        msg.className = "msg";
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Creating account\u2026';
+
+        fetch(API_BASE + "/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: document.getElementById("reg-name").value,
+            email: document.getElementById("reg-email").value,
+            password: document.getElementById("reg-password").value,
+          }),
+        })
+          .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+          .then(function (r) {
+            if (!r.ok) {
+              var errText = "Registration failed";
+              if (r.data && r.data.error) {
+                var raw = r.data.error.toLowerCase();
+                if (raw.indexOf("already") !== -1) errText = "An account with that email already exists";
+                else errText = r.data.error;
+              }
+              msg.textContent = errText;
+              msg.className = "msg msg-error";
+              btn.disabled = false;
+              btn.textContent = "Register";
+              return;
+            }
+            showToast("Account created! You can now sign in.");
+            setTimeout(function () {
+              document.getElementById("register-container").style.display = "none";
+              document.getElementById("login-container").style.display = "block";
+              document.getElementById("email").value = document.getElementById("reg-email").value;
+              document.getElementById("email").focus();
+            }, 1200);
+          })
+          .catch(function () {
+            msg.textContent = "Unable to connect. Please try again.";
+            msg.className = "msg msg-error";
+            btn.disabled = false;
+            btn.textContent = "Register";
+          });
+      });
+    })();
   </script>
 
 </body>
