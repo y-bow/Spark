@@ -126,6 +126,11 @@ if (typeof Fuse !== "undefined") {
     .arcStroke(0.6);
 
   // ── Match canvas clear color to page background — eliminates seam ──
+  // globe.gl applies its own backgroundColor default (#000011) to the renderer
+  // clear color shortly after init, which would override a direct setClearColor
+  // call. Set the backgroundColor accessor so the canvas clear stays identical
+  // to the page background (#0B0E1A).
+  globe.backgroundColor("#0b0e1a");
   globe.renderer().setClearColor(0x0B0E1A, 1);
 
   // ── Controls: drag, zoom, auto-rotate ──
@@ -154,10 +159,10 @@ if (typeof Fuse !== "undefined") {
   }
   window.addEventListener("resize", syncSize);
 
-   // ── Wide view first, ease into global perspective ──
-   globe.pointOfView({ lat: 20, lng: 0, altitude: 2.6 }, 0);
+   // ── Zoomed-out global perspective: clear curvature from the top edge ──
+   globe.pointOfView({ lat: 20, lng: 78, altitude: 2.2 }, 0);
 
-  // ── Auto-rotate idle detection ──
+   // ── Auto-rotate idle detection ──
   var idleTimer = null;
   var IDLE_DELAY = 4000;
 
@@ -346,7 +351,7 @@ if (typeof Fuse !== "undefined") {
       TP.destinations = destinations;
       TP.allDestinations = destinations;
 
-      globe.pointsData(
+       globe.pointsData(
         destinations.map(function (d) {
           return {
             lat: d.lat,
@@ -358,11 +363,6 @@ if (typeof Fuse !== "undefined") {
           };
         })
       );
-
-       // ── Smooth transition to overview after data loads ──
-       setTimeout(function () {
-         globe.pointOfView({ lat: 20, lng: 0, altitude: 1.6 }, 2500);
-       }, 800);
 
       return fetch(API_BASE + "/routes");
     })

@@ -3,28 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0; url=../index.html">
   <title>Browse Destinations | TravelPulse</title>
-  <meta name="description" content="Browse and explore a curated collection of global tourist destinations on TravelPulse.">
-  
+  <meta name="description" content="Browse and explore a curated collection of global tourist destinations across 25+ countries with TravelPulse's destination catalog.">
+
   <!-- Open Graph -->
   <meta property="og:title" content="Browse Destinations | TravelPulse">
-  <meta property="og:description" content="Browse and explore a curated collection of global tourist destinations on TravelPulse.">
+  <meta property="og:description" content="Browse and explore a curated collection of global tourist destinations across 25+ countries with TravelPulse's destination catalog.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1589519160732-57fc498494f8?q=80&w=1200&auto=format&fit=crop">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://travelpulse-app.netlify.app/pages/destinations.html">
-  
+  <meta property="og:url" content="https://luminous-swan-08e721.netlify.app/pages/destinations.html">
+
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  
+
   <!-- Canonical -->
-  <link rel="canonical" href="https://travelpulse-app.netlify.app/pages/destinations.html">
-  
+  <link rel="canonical" href="https://luminous-swan-08e721.netlify.app/pages/destinations.html">
+
   <!-- Favicon & Manifest -->
   <link rel="icon" href="/favicon.ico">
   <link rel="manifest" href="/manifest.json">
+
+  <link rel="stylesheet" href="../css/main.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Browse Destinations | TravelPulse",
+    "description": "Browse and explore a curated collection of global tourist destinations across 25+ countries with TravelPulse's destination catalog.",
+    "url": "https://luminous-swan-08e721.netlify.app/pages/destinations.html",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "TravelPulse",
+      "url": "https://luminous-swan-08e721.netlify.app"
+    }
+  }
+  </script>
 </head>
 <body>
-  <p>Redirecting to <a href="../index.html">Home</a>...</p>
+
+  <nav class="navbar anim-nav">
+    <div class="nav-brand">TravelPulse</div>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="bookings.html">My Bookings</a>
+      <a href="login.html">Login</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="page-section destinations-page">
+      <div class="section-heading">
+        <span class="eyebrow">Destination Catalog</span>
+        <h1>Explore Every Destination</h1>
+        <p class="destinations-intro">A curated collection of the world's most breathtaking landscapes and cultural wonders, filterable by category and country.</p>
+      </div>
+
+      <div class="filter-bar reveal" id="filter-bar">
+        <div class="filter-group">
+          <label for="filter-category">Category</label>
+          <select id="filter-category">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-country">Country</label>
+          <select id="filter-country">
+            <option value="">All Countries</option>
+          </select>
+        </div>
+        <div class="filter-group filter-search-group">
+          <label for="filter-search">Search</label>
+          <input type="text" id="filter-search" placeholder="Search destinations..." autocomplete="off">
+        </div>
+      </div>
+
+      <div id="destination-cards" class="card-grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><span class="footer-brand">TravelPulse</span> &copy; 2026 &middot; Built for global exploration.</p>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script defer src="../js/config.js"></script>
+  <script defer src="../js/nav.js"></script>
+  <script defer src="../js/main.js"></script>
+
 </body>
 </html>

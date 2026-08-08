@@ -48,7 +48,7 @@
     container.innerHTML = destinations
       .map(function (d, i) {
         var imgHtml = d.image_url
-          ? '<img class="dest-card-img" src="' + d.image_url + '" alt="' + d.name + (d.region ? ' - ' + d.region : '') + ' destination overview" loading="lazy" width="400" height="225" onerror="this.style.display=\'none\'">'
+          ? '<img class="dest-card-img" src="' + d.image_url + '" alt="' + d.name + (d.region ? ' - ' + d.region : '') + ' destination overview" loading="lazy" width="400" height="225" onerror="this.onerror=null;this.src=\'/img/dest-placeholder.svg\'">'
           : "";
         var ratingHtml = d.rating
           ? '<span class="dest-card-rating">&#9733; ' + d.rating + "</span>"

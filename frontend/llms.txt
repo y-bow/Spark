@@ -1,0 +1,24 @@
+# TravelPulse
+
+> TravelPulse is a global travel dashboard for discovering tourist destinations
+> on an interactive 3D globe and booking travel routes across Tamil Nadu, India.
+
+## About
+
+TravelPulse lets travelers explore the world's most breathtaking landscapes and
+cultural wonders through an interactive 3D globe, a searchable destination
+catalog with category and country filters, and a booking system for travel
+routes (bus, train, ferry) across Tamil Nadu. Accounts let users create, confirm,
+and manage their bookings.
+
+## Main pages
+
+- Home (interactive globe + search): https://luminous-swan-08e721.netlify.app/index.html
+- Browse Destinations (filterable catalog): https://luminous-swan-08e721.netlify.app/pages/destinations.html
+- My Bookings (requires login): https://luminous-swan-08e721.netlify.app/pages/bookings.html
+- Login / Register: https://luminous-swan-08e721.netlify.app/pages/login.html
+
+## Tech
+
+- Frontend: vanilla HTML/CSS/JS with globe.gl for the 3D globe
+- Backend: Flask + SQLAlchemy REST API (see backend/ folder)
